@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "cross-env DEBUG=knex:query nodemon src/index.js",
-    "dataloader": "cross-env DEBUG=knex:query nodemon src/dataloader-example.js"
+    "dataloader": "cross-env DEBUG=knex:query nodemon src/dataloader-example.js",
+    "conditional-join": "cross-env DEBUG=knex:query nodemon src/conditional-join-example.js"
   },
   "keywords": [],
   "author": "",
