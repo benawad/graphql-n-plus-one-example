@@ -6,6 +6,23 @@ const knex = require("knex")({
   }
 });
 const faker = require("faker");
+const DataLoader = require("dataloader");
+
+const resolvers = {
+  Book: {
+    author: async (parent, _, ctx) => {
+      return ctx.authorLoader.load(parent.authorId);
+    }
+  },
+  Query: {
+    books: async () => {
+      const books = await knex("books")
+        .select()
+        .limit(5);
+      return books;
+    }
+  }
+};
 
 const typeDefs = gql`
   type Author {
@@ -23,27 +40,6 @@ const typeDefs = gql`
     books: [Book]
   }
 `;
-
-const resolvers = {
-  Book: {
-    author: async parent => {
-      const author = await knex("users")
-        .select()
-        .where("id", parent.authorId)
-        .first();
-
-      return author;
-    }
-  },
-  Query: {
-    books: async () => {
-      const books = await knex("books")
-        .select()
-        .limit(5);
-      return books;
-    }
-  }
-};
 
 knex("users")
   .select()
@@ -74,7 +70,26 @@ knex("users")
     }
   })
   .then(() => {
-    const server = new ApolloServer({ typeDefs, resolvers });
+    const server = new ApolloServer({
+      typeDefs,
+      resolvers,
+      context: () => {
+        return {
+          authorLoader: new DataLoader(async keys => {
+            const authors = await knex("users")
+              .select()
+              .whereIn("id", keys);
+
+            const authorMap = {};
+            authors.forEach(author => {
+              authorMap[author.id] = author;
+            });
+
+            return keys.map(key => authorMap[key]);
+          })
+        };
+      }
+    });
 
     server.listen().then(({ url }) => {
       console.log(`🚀  Server ready at ${url}`);

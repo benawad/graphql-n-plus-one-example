@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "cross-env DEBUG=knex:query nodemon src/index.js"
+    "start": "cross-env DEBUG=knex:query nodemon src/index.js",
+    "dataloader": "cross-env DEBUG=knex:query nodemon src/dataloader-example.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "apollo-server": "^2.9.13",
+    "dataloader": "^2.0.0",
     "faker": "^4.1.0",
     "graphql": "^14.5.8",
     "knex": "^0.20.4",
