@@ -39,7 +39,7 @@ const resolvers = {
     books: async () => {
       const books = await knex("books")
         .select()
-        .limit(5);
+        .limit(10);
       return books;
     }
   }

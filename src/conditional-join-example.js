@@ -55,7 +55,7 @@ function doesPathExist(nodes, path) {
 const resolvers = {
   Query: {
     books: async (_, __, ___, info) => {
-      const shouldJoinAuthTable = doesPathExist(info.fieldNodes, [
+      const shouldJoinUserTable = doesPathExist(info.fieldNodes, [
         "books",
         "author"
       ]);
@@ -64,7 +64,7 @@ const resolvers = {
         .select()
         .limit(5);
 
-      if (shouldJoinAuthTable) {
+      if (shouldJoinUserTable) {
         qb.leftJoin("users", "users.id", "books.authorId");
       }
 
