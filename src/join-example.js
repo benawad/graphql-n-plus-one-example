@@ -24,6 +24,16 @@ const typeDefs = gql`
   }
 `;
 
+function hydrate(books) {
+  return books.map(x => ({
+    ...x,
+    author: {
+      id: x.authorId,
+      name: x.name
+    }
+  }));
+}
+
 const resolvers = {
   Query: {
     books: async () => {
@@ -32,13 +42,7 @@ const resolvers = {
         .leftJoin("users", "users.id", "books.authorId")
         .limit(5);
 
-      return books.map(x => ({
-        ...x,
-        author: {
-          id: x.authorId,
-          name: x.name
-        }
-      }));
+      return hydrate(books);
     }
   }
 };

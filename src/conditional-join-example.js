@@ -24,12 +24,41 @@ const typeDefs = gql`
   }
 `;
 
+function hydrate(books) {
+  return books.map(x => ({
+    ...x,
+    author: {
+      id: x.authorId,
+      name: x.name
+    }
+  }));
+}
+
+function doesPathExist(nodes, path) {
+  if (!nodes) {
+    return false;
+  }
+
+  const node = nodes.find(x => x.name.value === path[0]);
+
+  if (!node) {
+    return false;
+  }
+
+  if (path.length === 1) {
+    return true;
+  }
+
+  return doesPathExist(node.selectionSet.selections, path.slice(1));
+}
+
 const resolvers = {
   Query: {
     books: async (_, __, ___, info) => {
-      const shouldJoinAuthTable = !!info.fieldNodes
-        .find(x => x.name.value === "books")
-        .selectionSet.selections.find(x => x.name.value === "author");
+      const shouldJoinAuthTable = doesPathExist(info.fieldNodes, [
+        "books",
+        "author"
+      ]);
 
       const qb = knex("books")
         .select()
@@ -41,15 +70,7 @@ const resolvers = {
 
       const books = await qb;
 
-      return shouldJoinAuthTable
-        ? books.map(x => ({
-            ...x,
-            author: {
-              id: x.authorId,
-              name: x.name
-            }
-          }))
-        : books;
+      return hydrate(books);
     }
   }
 };
